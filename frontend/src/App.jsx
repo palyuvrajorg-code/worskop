@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import Login from './Login';
+import LandingPage from './LandingPage';
 
 const formatCr = (value) => value ? `₹${(value / 10000000).toFixed(2)} Cr` : '₹0 Cr';
 
@@ -46,7 +47,7 @@ function App() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [activeNav, setActiveNav] = useState('Overview');
   const [hoveredNav, setHoveredNav] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [viewState, setViewState] = useState('landing'); // 'landing' | 'login' | 'dashboard'
 
   useEffect(() => {
     fetch('/api/impact')
@@ -81,8 +82,12 @@ function App() {
   const activeCategory = data?.categories?.[0];
   const topRanking = data?.ranking?.slice(0, 3) || [];
 
-  if (!isAuthenticated) {
-    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  if (viewState === 'landing') {
+    return <LandingPage onGetStarted={() => setViewState('login')} />;
+  }
+
+  if (viewState === 'login') {
+    return <Login onLogin={() => setViewState('dashboard')} onBack={() => setViewState('landing')} />;
   }
 
   return (
