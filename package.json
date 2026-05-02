@@ -6,7 +6,6 @@
     "frontend"
   ],
   "scripts": {
-    "install": "npm install --workspaces",
     "dev": "concurrently \"npm:start --workspace backend\" \"npm:start --workspace frontend\"",
     "start": "node backend/index.js",
     "build": "npm --workspace frontend run build"
