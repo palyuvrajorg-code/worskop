@@ -4,11 +4,12 @@ import { motion } from 'framer-motion';
 const Login = ({ onLogin, onBack }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('investor');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email && password) {
-      onLogin();
+      onLogin(role);
     }
   };
 
@@ -72,6 +73,23 @@ const Login = ({ onLogin, onBack }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <motion.div variants={itemVariants} className="flex gap-4">
+              <button 
+                type="button"
+                onClick={() => setRole('investor')}
+                className={`flex-1 py-3 rounded-2xl border text-sm font-medium transition-all duration-300 ${role === 'investor' ? 'bg-neonEmerald/10 border-neonEmerald/50 text-neonEmerald shadow-[0_0_15px_rgba(0,255,136,0.15)]' : 'border-white/10 text-mint/50 hover:bg-white/5'}`}
+              >
+                Investor
+              </button>
+              <button 
+                type="button"
+                onClick={() => setRole('issuer')}
+                className={`flex-1 py-3 rounded-2xl border text-sm font-medium transition-all duration-300 ${role === 'issuer' ? 'bg-sage/20 border-sage/50 text-sage shadow-[0_0_15px_rgba(163,182,141,0.2)]' : 'border-white/10 text-mint/50 hover:bg-white/5'}`}
+              >
+                Issuer
+              </button>
+            </motion.div>
+
             <motion.div variants={itemVariants} className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Email Address</label>
               <div className="relative">
