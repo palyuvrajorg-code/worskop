@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import Login from './Login';
@@ -52,6 +53,28 @@ function App() {
   const [viewState, setViewState] = useState('landing'); // 'landing' | 'login' | 'dashboard' | 'settings'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const profileButtonRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+
+  useEffect(() => {
+    const updatePosition = () => {
+      if (isDropdownOpen && profileButtonRef.current) {
+        const rect = profileButtonRef.current.getBoundingClientRect();
+        setDropdownPos({
+          top: rect.bottom + 12,
+          right: window.innerWidth - rect.right
+        });
+      }
+    };
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [isDropdownOpen]);
 
   const navItems = userRole === 'issuer' 
     ? ['My Bonds', 'Issue New Bond', 'Analytics'] 
@@ -119,7 +142,7 @@ function App() {
         <div className="background-layer layer-3" style={{ transform: `translate(${mouse.x * 6}px, ${mouse.y * 6}px)` }} />
       </div>
 
-      <header className="relative z-10 px-6 py-8 md:px-10 lg:px-14">
+      <header className="relative z-[9999] px-6 py-8 md:px-10 lg:px-14">
         <div className="max-w-7xl mx-auto flex flex-col gap-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -160,7 +183,7 @@ function App() {
                 </button>
               )}
               
-              <div className="relative">
+              <div className="relative" ref={profileButtonRef}>
                 <button 
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="w-12 h-12 rounded-full border-2 border-neonEmerald/30 p-0.5 overflow-hidden focus:outline-none hover:border-neonEmerald transition-colors bg-forest flex-shrink-0"
@@ -168,13 +191,14 @@ function App() {
                   <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=0B2414" alt="Profile" className="w-full h-full object-cover rounded-full" />
                 </button>
 
-                {isDropdownOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                {isDropdownOpen && createPortal(
+                  <div className="fixed inset-0 z-[9999] pointer-events-auto">
+                    <div className="absolute inset-0" onClick={() => setIsDropdownOpen(false)} />
                     <motion.div 
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      className="absolute right-0 mt-3 w-64 rounded-2xl bg-forest/95 backdrop-blur-xl border border-white/10 shadow-glow z-50 overflow-hidden"
+                      style={{ top: dropdownPos.top, right: dropdownPos.right }}
+                      className="absolute w-64 rounded-2xl bg-forest/95 backdrop-blur-xl border border-white/10 shadow-glow overflow-hidden"
                     >
                       <div className="p-4 border-b border-white/10">
                         <p className="text-cream font-medium">{userRole === 'issuer' ? 'Eco-Capital Issuer' : 'Alex Investor'}</p>
@@ -197,7 +221,8 @@ function App() {
                         </button>
                       </div>
                     </motion.div>
-                  </>
+                  </div>,
+                  document.body
                 )}
               </div>
             </div>
