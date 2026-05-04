@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -43,16 +44,36 @@ function SuspenseSeedling() {
   );
 }
 
+function NotFound() {
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-forest text-cream relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="background-layer layer-1" />
+      </div>
+      <div className="relative z-10 text-center">
+        <h1 className="text-8xl font-serif text-neonEmerald mb-4 drop-shadow-[0_0_15px_rgba(0,255,136,0.3)]">404</h1>
+        <p className="text-2xl text-mint/80 mb-8 font-light">Ecosystem sector not found</p>
+        <button onClick={() => navigate('/')} className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-cream transition-all backdrop-blur-md">
+          Return to Overview
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [data, setData] = useState(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [userRole, setUserRole] = useState('investor'); // 'investor' | 'issuer'
+  const [userRole, setUserRole] = useState(null); // 'investor' | 'issuer'
   const [activeNav, setActiveNav] = useState('Overview');
   const [hoveredNav, setHoveredNav] = useState(null);
   const [investmentAmount, setInvestmentAmount] = useState(10000);
-  const [viewState, setViewState] = useState('landing'); // 'landing' | 'login' | 'dashboard' | 'settings'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const profileButtonRef = useRef(null);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
@@ -83,7 +104,8 @@ function App() {
   const handleLogout = () => {
     setShowLogoutModal(false);
     setIsDropdownOpen(false);
-    setViewState('landing');
+    setUserRole(null);
+    navigate('/');
   };
 
   useEffect(() => {
@@ -119,23 +141,11 @@ function App() {
   const activeCategory = data?.categories?.[0];
   const topRanking = data?.ranking?.slice(0, 3) || [];
 
-  if (viewState === 'landing') {
-    return <LandingPage onGetStarted={() => setViewState('login')} />;
-  }
+  const renderDashboardLayout = (content) => {
+    if (!userRole) return <Navigate to="/login" replace />;
 
-  if (viewState === 'login') {
-    return <Login 
-      onLogin={(role) => { 
-        setUserRole(role); 
-        setActiveNav(role === 'issuer' ? 'My Bonds' : 'Overview'); 
-        setViewState('dashboard'); 
-      }} 
-      onBack={() => setViewState('landing')} 
-    />;
-  }
-
-  return (
-    <div className="min-h-screen overflow-hidden text-mint" onMouseMove={handleMouseMove}>
+    return (
+      <div className="min-h-screen overflow-hidden text-mint" onMouseMove={handleMouseMove}>
       <div className="absolute inset-0 pointer-events-none">
         <div className="background-layer layer-1" style={{ transform: `translate(${mouse.x * 18}px, ${mouse.y * 18}px)` }} />
         <div className="background-layer layer-2" style={{ transform: `translate(${mouse.x * 12}px, ${mouse.y * 12}px)` }} />
@@ -176,7 +186,7 @@ function App() {
 
             {/* Profile Dropdown */}
             <div className="flex items-center gap-4 relative z-50">
-              {userRole === 'investor' && viewState === 'dashboard' && (
+              {userRole === 'investor' && content === 'dashboard' && (
                 <button onClick={() => window.print()} className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-mint text-sm font-medium transition-colors backdrop-blur-md print:hidden">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-3 3m0 0l-3-3m3 3V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Export Report
@@ -205,10 +215,10 @@ function App() {
                         <p className="text-mint/50 text-xs">{userRole === 'issuer' ? 'corp@eco-capital.com' : 'alex@greenimpact.com'}</p>
                       </div>
                       <div className="py-2">
-                        <button onClick={() => { setViewState('dashboard'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
+                        <button onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
                           <span className="text-lg">📊</span> Dashboard
                         </button>
-                        <button onClick={() => { setViewState('settings'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
+                        <button onClick={() => { navigate('/settings'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
                           <span className="text-lg">⚙️</span> Settings
                         </button>
                         <button onClick={() => { alert('Notifications panel opening...'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
@@ -262,7 +272,7 @@ function App() {
         </div>
       </header>
 
-      {viewState === 'settings' ? (
+      {content === 'settings' ? (
         <Settings />
       ) : (
         <main className="relative z-10 px-6 pb-16 md:px-10 lg:px-14">
@@ -648,6 +658,24 @@ function App() {
         </div>
       )}
     </div>
+    );
+  };
+
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage onGetStarted={() => navigate('/login')} />} />
+      <Route path="/login" element={<Login 
+        onLogin={(role) => { 
+          setUserRole(role); 
+          setActiveNav(role === 'issuer' ? 'My Bonds' : 'Overview'); 
+          navigate('/dashboard'); 
+        }} 
+        onBack={() => navigate('/')} 
+      />} />
+      <Route path="/dashboard" element={renderDashboardLayout('dashboard')} />
+      <Route path="/settings" element={renderDashboardLayout('settings')} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
