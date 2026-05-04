@@ -15,7 +15,7 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ TEST ROUTE (VERY IMPORTANT)
-app.get("/", (req, res) => {
+app.get("/api/status", (req, res) => {
   res.send("Backend is working 🚀");
 });
 
