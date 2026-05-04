@@ -307,7 +307,7 @@ function App() {
                       </div>
                       <div>
                         <p className="text-xs uppercase tracking-widest text-mint/50">Funded</p>
-                        <p className="text-xl font-bold text-neonEmerald">{(Math.random() * 50).toFixed(1)} Cr</p>
+                        <p className="text-xl font-bold text-neonEmerald">{(i === 1 ? 42.5 : 28.3).toFixed(1)} Cr</p>
                       </div>
                       <div>
                         <p className="text-xs uppercase tracking-widest text-mint/50">Efficiency</p>
