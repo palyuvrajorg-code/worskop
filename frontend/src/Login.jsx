@@ -5,6 +5,7 @@ const Login = ({ onLogin, onBack }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('investor');
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -135,10 +136,54 @@ const Login = ({ onLogin, onBack }) => {
           </form>
 
           <motion.div variants={itemVariants} className="mt-8 text-center">
-            <a href="#" className="text-sm text-mint/50 hover:text-mint transition-colors">Forgot your password?</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowForgotModal(true); }} className="text-sm text-mint/50 hover:text-mint transition-colors">Forgot your password?</a>
           </motion.div>
         </motion.div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowForgotModal(false)} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-forest border border-white/10 rounded-3xl p-8 max-w-sm w-full shadow-glow text-center z-10"
+          >
+            <div className="w-16 h-16 rounded-full bg-neonEmerald/10 flex items-center justify-center mx-auto mb-6">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF88" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0110 0v4"></path>
+              </svg>
+            </div>
+            <h3 className="text-2xl font-serif text-cream mb-2">Reset Password</h3>
+            <p className="text-mint/70 mb-6 text-sm">Enter your email address and we'll send you a link to reset your password.</p>
+            <form onSubmit={(e) => { e.preventDefault(); alert('Reset link sent!'); setShowForgotModal(false); }}>
+              <input 
+                type="email" 
+                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-mint placeholder-mint/30 focus:outline-none focus:border-neonEmerald/50 mb-6"
+                placeholder="name@domain.com"
+                required
+              />
+              <div className="flex gap-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowForgotModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-white/10 text-mint hover:bg-white/5 transition-colors font-medium text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-moss to-sage text-forest hover:opacity-90 transition-opacity font-medium text-sm"
+                >
+                  Send Link
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
