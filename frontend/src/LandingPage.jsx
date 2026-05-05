@@ -79,6 +79,77 @@ const LandingPage = ({ onGetStarted }) => {
             <path d="M12 5V19M12 19L5 12M12 19L19 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </motion.div>
+
+        {/* Project Details Sidebar */}
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="hidden xl:block absolute right-12 top-1/2 transform -translate-y-1/2 w-[320px] p-8 rounded-[30px] bg-[#0c1810]/90 backdrop-blur-xl border border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.6)] z-20 text-left"
+        >
+          <div className="space-y-6">
+            {/* Project Details */}
+            <div>
+              <h3 className="text-[#00FF88] text-sm font-bold tracking-[0.2em] uppercase mb-4">Project Details</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-mint/50">Project Title</span>
+                  <span className="text-white font-bold text-right">GREEN BOND IMPACT REPORTER</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-mint/50">Division</span>
+                  <span className="text-white font-bold">COMPS-C</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-mint/50">Batch</span>
+                  <span className="text-white font-bold">B</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="h-px w-full bg-white/10" />
+
+            {/* Team */}
+            <div>
+              <h3 className="text-[#00FF88] text-sm font-bold tracking-[0.2em] uppercase mb-4">Team</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-mint/80">Aaryan Mohite</span>
+                  <span className="text-mint/50 font-medium">C-34</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-mint/80">Ananya Narhe</span>
+                  <span className="text-mint/50 font-medium">C-35</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-mint/80">Yuvraj Pal</span>
+                  <span className="text-mint/50 font-medium">C-36</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-mint/80">Harish Parihar</span>
+                  <span className="text-mint/50 font-medium">C-37</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="h-px w-full bg-white/10" />
+
+            {/* SDGs */}
+            <div>
+              <h3 className="text-[#00FF88] text-sm font-bold tracking-[0.2em] uppercase mb-4">SDGs</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-[#FFD700] font-bold">7 —</span>
+                  <span className="text-mint/80">Clean and Affordable Energy</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#4ade80] font-bold">13 —</span>
+                  <span className="text-mint/80">Climate Action</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* 2. About Green Impact Section */}
