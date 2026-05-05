@@ -242,7 +242,11 @@ function App() {
                         <p className="text-mint/50 text-xs">{user ? user.primaryEmailAddress?.emailAddress : (userRole === 'issuer' ? 'corp@eco-capital.com' : 'alex@greenimpact.com')}</p>
                       </div>
                       <div className="py-2">
-                        <button onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
+                        <button onClick={() => { 
+                          setActiveNav(userRole === 'issuer' ? 'My Bonds' : 'Overview');
+                          navigate('/dashboard'); 
+                          setIsDropdownOpen(false); 
+                        }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
                           <span className="text-lg">📊</span> Dashboard
                         </button>
                         <button onClick={() => { navigate('/settings'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
