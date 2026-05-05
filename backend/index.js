@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import data from "./data.js";
+import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,6 +54,17 @@ app.get("/api/impact", (req, res) => {
 
 app.get("/api/overview", (req, res) => {
   res.json(data.overview);
+});
+
+app.get("/api/bonds", (req, res) => {
+  try {
+    const bondsPath = path.resolve(__dirname, "../dataset/green_bonds.json");
+    const bondsData = fs.readFileSync(bondsPath, "utf-8");
+    res.json(JSON.parse(bondsData));
+  } catch (error) {
+    console.error("Error reading bonds data:", error);
+    res.status(500).json({ error: "Failed to load bonds data" });
+  }
 });
 
 // ✅ Serve frontend (ONLY if dist exists)

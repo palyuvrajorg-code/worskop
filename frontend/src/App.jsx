@@ -71,6 +71,8 @@ function App() {
   const [investmentAmount, setInvestmentAmount] = useState(10000);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [myBonds, setMyBonds] = useState([]);
+
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,6 +115,15 @@ function App() {
       .then((res) => res.json())
       .then((payload) => setData(payload));
   }, []);
+
+  useEffect(() => {
+    if (userRole === 'issuer') {
+      fetch('/api/bonds')
+        .then((res) => res.json())
+        .then((bonds) => setMyBonds(bonds))
+        .catch((err) => console.error("Failed to load bonds:", err));
+    }
+  }, [userRole]);
 
   const cardOrder = useMemo(() => {
     if (!data) return [];
@@ -293,25 +304,27 @@ function App() {
                 </button>
               </div>
               <div className="grid gap-6">
-                {[1, 2].map((i) => (
-                  <motion.div key={i} variants={itemVariants} className="p-6 rounded-[24px] border border-white/10 bg-white/5 backdrop-blur-xl flex flex-col md:flex-row gap-6 justify-between items-center hover:bg-white/10 transition-colors">
+                {myBonds.length === 0 ? (
+                  <p className="text-mint/70 text-center py-10">No bonds issued yet.</p>
+                ) : myBonds.map((bond, index) => (
+                  <motion.div key={bond.id || index} variants={itemVariants} className="p-6 rounded-[24px] border border-white/10 bg-white/5 backdrop-blur-xl flex flex-col md:flex-row gap-6 justify-between items-center hover:bg-white/10 transition-colors">
                     <div>
                       <span className="text-xs uppercase tracking-widest text-neonEmerald border border-neonEmerald/20 px-3 py-1 rounded-full mb-3 inline-block bg-neonEmerald/5">Active</span>
-                      <h3 className="text-2xl font-bold text-cream mb-1">Solar Infrastructure Series {i}</h3>
-                      <p className="text-mint/70 text-sm">Issued: Jan 2026 • Maturity: 10 Years</p>
+                      <h3 className="text-2xl font-bold text-cream mb-1">{bond.project}</h3>
+                      <p className="text-mint/70 text-sm">Sector: {bond.sector} • Jobs Created: {bond.jobs_created || 0}</p>
                     </div>
                     <div className="flex gap-8 text-right">
                       <div>
                         <p className="text-xs uppercase tracking-widest text-mint/50">Target</p>
-                        <p className="text-xl font-bold text-cream">₹50 Cr</p>
+                        <p className="text-xl font-bold text-cream">₹{bond.amount_crore} Cr</p>
                       </div>
                       <div>
-                        <p className="text-xs uppercase tracking-widest text-mint/50">Funded</p>
-                        <p className="text-xl font-bold text-neonEmerald">{(i === 1 ? 42.5 : 28.3).toFixed(1)} Cr</p>
+                        <p className="text-xs uppercase tracking-widest text-mint/50">CO₂ Avoided</p>
+                        <p className="text-xl font-bold text-neonEmerald">{bond.co2_avoided_tco2 ? (bond.co2_avoided_tco2 / 1000).toFixed(1) + 'k T' : '--'}</p>
                       </div>
                       <div>
-                        <p className="text-xs uppercase tracking-widest text-mint/50">Efficiency</p>
-                        <p className="text-xl font-bold text-sage">8.4</p>
+                        <p className="text-xs uppercase tracking-widest text-mint/50">Capacity</p>
+                        <p className="text-xl font-bold text-sage">{bond.capacity_added_mw || 0} MW</p>
                       </div>
                     </div>
                   </motion.div>
@@ -323,28 +336,48 @@ function App() {
               <motion.div variants={itemVariants} className="rounded-[36px] border border-white/10 bg-forest/40 backdrop-blur-[12px] p-10 shadow-glow">
                 <h2 className="text-3xl font-serif text-cream mb-2">Publish New Bond</h2>
                 <p className="text-mint/70 mb-8">Launch a new green bond to the marketplace to secure funding.</p>
-                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('Bond published successfully!'); setActiveNav('My Bonds'); }}>
+                <form className="space-y-6" onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  const formData = new FormData(e.target);
+                  const newBond = {
+                    id: Date.now(),
+                    project: formData.get('title'),
+                    amount_crore: Number(formData.get('target')),
+                    sector: formData.get('category'),
+                    co2_avoided_tco2: 0,
+                    capacity_added_mw: 0,
+                    jobs_created: 0,
+                  };
+                  setMyBonds(prev => [newBond, ...prev]);
+                  alert('Bond published successfully!'); 
+                  e.target.reset();
+                  setActiveNav('My Bonds'); 
+                }}>
                   <div className="space-y-2">
                     <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Bond Title</label>
-                    <input required type="text" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:border-neonEmerald/50 focus:ring-1 focus:ring-neonEmerald/50 transition-all outline-none" placeholder="e.g. Ocean Cleanup Initiative 2026" />
+                    <input name="title" required type="text" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:border-neonEmerald/50 focus:ring-1 focus:ring-neonEmerald/50 transition-all outline-none" placeholder="e.g. Ocean Cleanup Initiative 2026" />
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Target Funding (₹ Cr)</label>
-                      <input required type="number" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:border-neonEmerald/50 transition-all outline-none" placeholder="100" />
+                      <input name="target" required type="number" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:border-neonEmerald/50 transition-all outline-none" placeholder="100" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Category</label>
-                      <select className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint focus:border-neonEmerald/50 transition-all outline-none appearance-none">
+                      <select name="category" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint focus:border-neonEmerald/50 transition-all outline-none appearance-none">
                         <option>Renewable Energy</option>
                         <option>Clean Water</option>
                         <option>Biodiversity</option>
+                        <option>Clean Transport</option>
+                        <option>Sustainable Agriculture</option>
+                        <option>Green Buildings</option>
+                        <option>Sustainable Forestry</option>
                       </select>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Project Description</label>
-                    <textarea required rows="4" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:border-neonEmerald/50 transition-all outline-none" placeholder="Describe the environmental impact goals..." />
+                    <textarea name="description" required rows="4" className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:border-neonEmerald/50 transition-all outline-none" placeholder="Describe the environmental impact goals..." />
                   </div>
                   <button type="submit" className="w-full py-4 rounded-2xl bg-gradient-to-r from-neonEmerald to-sage text-forest font-bold text-lg hover:shadow-[0_0_20px_rgba(0,255,136,0.3)] transition-all">
                     Publish to Market
