@@ -63,6 +63,12 @@ function NotFound() {
   );
 }
 
+const calculateImpact = (amountCr) => ({
+  co2_avoided_tco2: Math.round(amountCr * 600),
+  capacity_added_mw: Number((amountCr * 0.15).toFixed(1)),
+  jobs_created: Math.round(amountCr * 4)
+});
+
 function App() {
   const [data, setData] = useState(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -124,7 +130,13 @@ function App() {
     if (userRole === 'issuer') {
       fetch('/api/bonds')
         .then((res) => res.json())
-        .then((bonds) => setMyBonds(bonds))
+        .then((bonds) => {
+          const processedBonds = bonds.map(bond => ({
+            ...bond,
+            ...calculateImpact(bond.amount_crore)
+          }));
+          setMyBonds(processedBonds);
+        })
         .catch((err) => console.error("Failed to load bonds:", err));
     }
   }, [userRole]);
@@ -343,14 +355,13 @@ function App() {
                 <form className="space-y-6" onSubmit={(e) => { 
                   e.preventDefault(); 
                   const formData = new FormData(e.target);
+                  const amountCrore = Number(formData.get('target'));
                   const newBond = {
                     id: Date.now(),
                     project: formData.get('title'),
-                    amount_crore: Number(formData.get('target')),
+                    amount_crore: amountCrore,
                     sector: formData.get('category'),
-                    co2_avoided_tco2: 0,
-                    capacity_added_mw: 0,
-                    jobs_created: 0,
+                    ...calculateImpact(amountCrore)
                   };
                   setMyBonds(prev => [newBond, ...prev]);
                   alert('Bond published successfully!'); 
