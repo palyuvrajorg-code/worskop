@@ -7,12 +7,6 @@ const Login = ({ onLogin, onBack }) => {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const { isSignedIn, user } = useUser();
 
-  useEffect(() => {
-    if (isSignedIn) {
-      onLogin(role);
-    }
-  }, [isSignedIn, role, onLogin]);
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -91,20 +85,36 @@ const Login = ({ onLogin, onBack }) => {
             </motion.div>
 
             <motion.div variants={itemVariants} className="pt-2">
-              <SignInButton mode="modal" fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard">
+              {isSignedIn ? (
                 <button 
                   type="button"
+                  onClick={() => onLogin(role)}
                   className="w-full relative group overflow-hidden rounded-2xl bg-gradient-to-r from-moss to-sage p-px font-medium"
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                   <div className="relative bg-forest/80 backdrop-blur-md px-6 py-4 rounded-[15px] flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors duration-300">
-                    <span className="text-cream tracking-wide">Secure Login with Clerk</span>
+                    <span className="text-cream tracking-wide">Enter Dashboard as {role === 'investor' ? 'Investor' : 'Issuer'}</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transform group-hover:translate-x-1 transition-transform">
                       <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
                 </button>
-              </SignInButton>
+              ) : (
+                <SignInButton mode="modal" fallbackRedirectUrl="/login" forceRedirectUrl="/login">
+                  <button 
+                    type="button"
+                    className="w-full relative group overflow-hidden rounded-2xl bg-gradient-to-r from-moss to-sage p-px font-medium"
+                  >
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                    <div className="relative bg-forest/80 backdrop-blur-md px-6 py-4 rounded-[15px] flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors duration-300">
+                      <span className="text-cream tracking-wide">Secure Login with Clerk</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transform group-hover:translate-x-1 transition-transform">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </button>
+                </SignInButton>
+              )}
             </motion.div>
           </div>
 
