@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { SignInButton, useUser } from '@clerk/clerk-react';
 
 const Login = ({ onLogin, onBack }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [role, setRole] = useState('investor');
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const { isSignedIn, user } = useUser();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (email && password) {
+  useEffect(() => {
+    if (isSignedIn) {
       onLogin(role);
     }
-  };
+  }, [isSignedIn, role, onLogin]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -73,7 +72,7 @@ const Login = ({ onLogin, onBack }) => {
             <p className="text-sm text-mint/60">Access the Green Bond Impact Reactor</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             <motion.div variants={itemVariants} className="flex gap-4">
               <button 
                 type="button"
@@ -91,52 +90,26 @@ const Login = ({ onLogin, onBack }) => {
               </button>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Email Address</label>
-              <div className="relative">
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:outline-none focus:border-neonEmerald/50 focus:ring-1 focus:ring-neonEmerald/50 transition-all"
-                  placeholder="name@domain.com"
-                  required
-                />
-              </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-mint/70 ml-1">Password</label>
-              <div className="relative">
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-mint placeholder-mint/30 focus:outline-none focus:border-neonEmerald/50 focus:ring-1 focus:ring-neonEmerald/50 transition-all"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-            </motion.div>
-
             <motion.div variants={itemVariants} className="pt-2">
-              <button 
-                type="submit"
-                className="w-full relative group overflow-hidden rounded-2xl bg-gradient-to-r from-moss to-sage p-px font-medium"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                <div className="relative bg-forest/80 backdrop-blur-md px-6 py-4 rounded-[15px] flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors duration-300">
-                  <span className="text-cream tracking-wide">Enter Dashboard</span>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transform group-hover:translate-x-1 transition-transform">
-                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </button>
+              <SignInButton mode="modal" fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard">
+                <button 
+                  type="button"
+                  className="w-full relative group overflow-hidden rounded-2xl bg-gradient-to-r from-moss to-sage p-px font-medium"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                  <div className="relative bg-forest/80 backdrop-blur-md px-6 py-4 rounded-[15px] flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors duration-300">
+                    <span className="text-cream tracking-wide">Secure Login with Clerk</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transform group-hover:translate-x-1 transition-transform">
+                      <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </button>
+              </SignInButton>
             </motion.div>
-          </form>
+          </div>
 
           <motion.div variants={itemVariants} className="mt-8 text-center">
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowForgotModal(true); }} className="text-sm text-mint/50 hover:text-mint transition-colors">Forgot your password?</a>
+            <p className="text-sm text-mint/50">Authentication powered by Clerk</p>
           </motion.div>
         </motion.div>
       </motion.div>

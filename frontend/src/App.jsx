@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useClerk, useUser } from '@clerk/clerk-react';
 import Login from './Login';
 import LandingPage from './LandingPage';
 import Settings from './Settings';
@@ -103,11 +104,14 @@ function App() {
     ? ['My Bonds', 'Issue New Bond', 'Analytics'] 
     : ['Overview', 'Rankings', 'Analysis', 'Calculator'];
 
+  const { signOut } = useClerk();
+  const { user } = useUser();
+
   const handleLogout = () => {
     setShowLogoutModal(false);
     setIsDropdownOpen(false);
     setUserRole(null);
-    navigate('/');
+    signOut().then(() => navigate('/'));
   };
 
   useEffect(() => {
@@ -209,7 +213,7 @@ function App() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="w-12 h-12 rounded-full border-2 border-neonEmerald/30 p-0.5 overflow-hidden focus:outline-none hover:border-neonEmerald transition-colors bg-forest flex-shrink-0"
                 >
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=0B2414" alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  <img src={user?.imageUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=0B2414"} alt="Profile" className="w-full h-full object-cover rounded-full" />
                 </button>
 
                 {isDropdownOpen && createPortal(
@@ -222,8 +226,8 @@ function App() {
                       className="absolute w-64 rounded-2xl bg-forest/95 backdrop-blur-xl border border-white/10 shadow-glow overflow-hidden"
                     >
                       <div className="p-4 border-b border-white/10">
-                        <p className="text-cream font-medium">{userRole === 'issuer' ? 'Eco-Capital Issuer' : 'Alex Investor'}</p>
-                        <p className="text-mint/50 text-xs">{userRole === 'issuer' ? 'corp@eco-capital.com' : 'alex@greenimpact.com'}</p>
+                        <p className="text-cream font-medium">{user ? user.fullName : (userRole === 'issuer' ? 'Eco-Capital Issuer' : 'Alex Investor')}</p>
+                        <p className="text-mint/50 text-xs">{user ? user.primaryEmailAddress?.emailAddress : (userRole === 'issuer' ? 'corp@eco-capital.com' : 'alex@greenimpact.com')}</p>
                       </div>
                       <div className="py-2">
                         <button onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-mint hover:bg-white/10 transition-colors flex items-center gap-3">
