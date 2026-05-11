@@ -63,7 +63,7 @@ const Login = ({ onLogin, onBack }) => {
               </svg>
             </div>
             <h1 className="text-3xl font-serif text-cream mb-2">Welcome Back</h1>
-            <p className="text-sm text-mint/60">Access the Green Bond Impact Reactor</p>
+            <p className="text-sm text-mint/60">Access the Green Bond Impact Reporter</p>
           </div>
 
           <div className="space-y-6">
